@@ -1,4 +1,5 @@
 import streamlit as st
+import plotly.express as px
 
 from core.database import get_audits, delete_audit
 
@@ -9,7 +10,7 @@ from core.database import get_audits, delete_audit
 
 st.set_page_config(
     page_title="Historique - CyberAudit",
-    page_icon="📚",
+    page_icon="📊",
     layout="wide"
 )
 
@@ -18,10 +19,11 @@ st.set_page_config(
 # TITRE
 # ============================================================
 
-st.title("📚 Historique des audits")
+st.title("Historique des audits")
 
 st.caption(
-    "Consultez les évaluations de cybersécurité réalisées précédemment."
+    "Consultez les évaluations de cybersécurité réalisées précédemment "
+    "et suivez l'évolution de la maturité d'une entreprise."
 )
 
 st.divider()
@@ -41,7 +43,7 @@ audits = get_audits()
 if not audits:
 
     st.info(
-        "📭 Aucun audit enregistré pour le moment."
+        "Aucun audit enregistré pour le moment."
     )
 
     st.write(
@@ -52,7 +54,7 @@ if not audits:
 
 
 # ============================================================
-# STATISTIQUES
+# STATISTIQUES GLOBALES
 # ============================================================
 
 total_audits = len(audits)
@@ -73,23 +75,186 @@ c1, c2, c3 = st.columns(3)
 with c1:
 
     st.metric(
-        "📋 Nombre d'audits",
+        "Nombre d'audits",
         total_audits
     )
 
 with c2:
 
     st.metric(
-        "📊 Score moyen",
+        "Score moyen",
         f"{average_score}/25"
     )
 
 with c3:
 
     st.metric(
-        "📈 Maturité moyenne",
+        "Maturité moyenne",
         f"{average_percentage}%"
     )
+
+
+st.divider()
+
+
+# ============================================================
+# ÉVOLUTION D'UNE ENTREPRISE
+# ============================================================
+
+st.subheader("Évolution de la maturité")
+
+
+# Liste des entreprises uniques
+companies = sorted(
+    set(
+        audit[1]
+        for audit in audits
+    )
+)
+
+
+selected_company = st.selectbox(
+    "Sélectionner une entreprise",
+    companies
+)
+
+
+# Audits de l'entreprise sélectionnée
+company_audits = [
+    audit
+    for audit in audits
+    if audit[1] == selected_company
+]
+
+
+# Tri chronologique
+company_audits = sorted(
+    company_audits,
+    key=lambda audit: audit[0]
+)
+
+
+if len(company_audits) == 1:
+
+    audit = company_audits[0]
+
+    st.info(
+        "Cette entreprise ne possède qu'un seul audit. "
+        "Réalisez une nouvelle évaluation pour afficher "
+        "son évolution dans le temps."
+    )
+
+else:
+
+    evolution_data = []
+
+    for index, audit in enumerate(
+        company_audits,
+        start=1
+    ):
+
+        evolution_data.append(
+            {
+                "Audit": f"Audit {index}",
+                "Date": audit[9],
+                "Maturité": audit[7],
+                "Score": audit[6]
+            }
+        )
+
+
+    # --------------------------------------------------------
+    # Graphique évolution
+    # --------------------------------------------------------
+
+    fig = px.line(
+        evolution_data,
+        x="Audit",
+        y="Maturité",
+        markers=True,
+        text="Maturité",
+        labels={
+            "Audit": "Évaluation",
+            "Maturité": "Maturité (%)"
+        }
+    )
+
+    fig.update_traces(
+        texttemplate="%{text}%",
+        textposition="top center"
+    )
+
+    fig.update_yaxes(
+        range=[0, 100]
+    )
+
+    st.plotly_chart(
+        fig,
+        width="stretch"
+    )
+
+
+    # --------------------------------------------------------
+    # Progression
+    # --------------------------------------------------------
+
+    first_audit = company_audits[0]
+    last_audit = company_audits[-1]
+
+    first_percentage = first_audit[7]
+    last_percentage = last_audit[7]
+
+    evolution = last_percentage - first_percentage
+
+
+    p1, p2, p3 = st.columns(3)
+
+    with p1:
+
+        st.metric(
+            "Premier audit",
+            f"{first_percentage}%"
+        )
+
+    with p2:
+
+        st.metric(
+            "Dernier audit",
+            f"{last_percentage}%"
+        )
+
+    with p3:
+
+        st.metric(
+            "Progression",
+            f"{evolution:+d} points"
+        )
+
+
+    # --------------------------------------------------------
+    # Tendance
+    # --------------------------------------------------------
+
+    if evolution > 0:
+
+        st.success(
+            f"Tendance positive : la maturité a progressé "
+            f"de {evolution} points."
+        )
+
+    elif evolution < 0:
+
+        st.error(
+            f"Tendance négative : la maturité a diminué "
+            f"de {abs(evolution)} points."
+        )
+
+    else:
+
+        st.info(
+            "Tendance stable : aucun changement entre "
+            "le premier et le dernier audit."
+        )
 
 
 st.divider()
@@ -99,7 +264,7 @@ st.divider()
 # LISTE DES AUDITS
 # ============================================================
 
-st.subheader("📋 Audits réalisés")
+st.subheader("Audits réalisés")
 
 
 for audit in audits:
@@ -118,30 +283,44 @@ for audit in audits:
     ) = audit
 
 
-    # --------------------------------------------------------
-    # Couleur / icône du niveau
-    # --------------------------------------------------------
+    # ========================================================
+    # NETTOYAGE DU NIVEAU
+    # ========================================================
 
-    if "Faible" in level:
+    clean_level = (
+        str(level)
+        .replace("🔴", "")
+        .replace("🟡", "")
+        .replace("🟢", "")
+        .replace("🏆", "")
+        .strip()
+    )
 
-        level_icon = "🔴"
 
-    elif "Intermédiaire" in level:
+    # ========================================================
+    # COULEUR DU NIVEAU
+    # ========================================================
 
-        level_icon = "🟡"
+    if clean_level == "Faible":
 
-    elif "Bon" in level:
+        level_color = "#C62828"
 
-        level_icon = "🟢"
+    elif clean_level == "Intermédiaire":
+
+        level_color = "#EF6C00"
+
+    elif clean_level == "Bon":
+
+        level_color = "#2E7D32"
 
     else:
 
-        level_icon = "🏆"
+        level_color = "#1565C0"
 
 
-    # --------------------------------------------------------
-    # Carte de l'audit
-    # --------------------------------------------------------
+    # ========================================================
+    # CARTE AUDIT
+    # ========================================================
 
     with st.container(border=True):
 
@@ -157,15 +336,15 @@ for audit in audits:
         with col1:
 
             st.markdown(
-                f"### 🏢 {entreprise}"
+                f"### {entreprise}"
             )
 
             st.write(
-                f"👤 **Responsable :** {responsable}"
+                f"**Responsable :** {responsable}"
             )
 
             st.write(
-                f"📅 **Date :** {date}"
+                f"**Date :** {date}"
             )
 
 
@@ -199,28 +378,40 @@ for audit in audits:
 
         with col4:
 
-            st.write("**Niveau**")
-
             st.write(
-                f"{level_icon} {level}"
+                "**Niveau**"
+            )
+
+            st.markdown(
+                f"<span style='color:{level_color}; "
+                f"font-weight:700; font-size:18px;'>"
+                f"{clean_level}"
+                f"</span>",
+                unsafe_allow_html=True
             )
 
 
         st.divider()
 
 
-        # ----------------------------------------------------
-        # Détails
-        # ----------------------------------------------------
+        # ====================================================
+        # DÉTAILS + SUPPRESSION
+        # ====================================================
 
         detail_col, delete_col = st.columns(
             [4, 1]
         )
 
 
+        # ----------------------------------------------------
+        # Détails
+        # ----------------------------------------------------
+
         with detail_col:
 
-            with st.expander("🔍 Voir les détails"):
+            with st.expander(
+                "Voir les détails"
+            ):
 
                 d1, d2 = st.columns(2)
 
@@ -253,6 +444,7 @@ for audit in audits:
                         f"**Date :** {date}"
                     )
 
+
                 st.write(
                     f"**Score :** {score}/25"
                 )
@@ -261,8 +453,13 @@ for audit in audits:
                     f"**Pourcentage :** {percentage}%"
                 )
 
-                st.write(
-                    f"**Niveau :** {level_icon} {level}"
+                st.markdown(
+                    f"**Niveau :** "
+                    f"<span style='color:{level_color}; "
+                    f"font-weight:700;'>"
+                    f"{clean_level}"
+                    f"</span>",
+                    unsafe_allow_html=True
                 )
 
 
@@ -273,12 +470,14 @@ for audit in audits:
         with delete_col:
 
             if st.button(
-                "🗑️ Supprimer",
+                "Supprimer",
                 key=f"delete_{audit_id}",
-                use_container_width=True
+                width="stretch"
             ):
 
-                delete_audit(audit_id)
+                delete_audit(
+                    audit_id
+                )
 
                 st.success(
                     "Audit supprimé."

@@ -11,7 +11,7 @@ from core.database import save_audit
 
 st.set_page_config(
     page_title="Questionnaire - CyberAudit",
-    page_icon="🛡️",
+    page_icon=":material/checklist:",
     layout="wide"
 )
 
@@ -35,12 +35,11 @@ if "questionnaire_started" not in st.session_state:
 # ============================================================
 
 def clear_all():
-    # Réinitialisation du questionnaire
+
     st.session_state.current_question = 0
     st.session_state.answers = {}
     st.session_state.questionnaire_started = False
 
-    # Suppression des résultats précédents
     for key in [
         "score",
         "percentage",
@@ -49,15 +48,27 @@ def clear_all():
         "level",
         "company"
     ]:
-        if key in st.session_state:
-            del st.session_state[key]
+        st.session_state.pop(key, None)
+
+    for i in range(len(questions)):
+        st.session_state.pop(
+            f"question_{i}",
+            None
+        )
+
+    for key in [
+        "entreprise_input",
+        "responsable_input",
+        "email_input"
+    ]:
+        st.session_state.pop(key, None)
 
 
 # ============================================================
 # TITRE
 # ============================================================
 
-st.title("🛡️ CyberAudit")
+st.title("CyberAudit")
 
 st.subheader(
     "Assistant d'évaluation de la maturité cybersécurité"
@@ -70,7 +81,7 @@ st.markdown("---")
 # INFORMATIONS DE L'ENTREPRISE
 # ============================================================
 
-st.header("🏢 Informations de l'entreprise")
+st.header("Informations de l'entreprise")
 
 col1, col2 = st.columns(2)
 
@@ -78,17 +89,17 @@ col1, col2 = st.columns(2)
 with col1:
 
     entreprise = st.text_input(
-        "🏢 Nom de l'entreprise",
+        "Nom de l'entreprise",
         key="entreprise_input"
     )
 
     responsable = st.text_input(
-        "👤 Responsable",
+        "Responsable",
         key="responsable_input"
     )
 
     email = st.text_input(
-        "📧 Email",
+        "Email",
         key="email_input"
     )
 
@@ -96,7 +107,7 @@ with col1:
 with col2:
 
     secteur = st.selectbox(
-        "🏭 Secteur d'activité",
+        "Secteur d'activité",
         [
             "Industrie",
             "Commerce",
@@ -110,7 +121,7 @@ with col2:
     )
 
     effectif = st.selectbox(
-        "👥 Nombre d'employés",
+        "Nombre d'employés",
         [
             "1 - 10",
             "11 - 50",
@@ -133,28 +144,26 @@ button_col1, button_col2 = st.columns(2)
 with button_col1:
 
     if st.button(
-        "🚀 Commencer le questionnaire",
-        use_container_width=True
+        "Commencer le questionnaire",
+        width="stretch"
     ):
-
-        # Vérification des informations
 
         if not entreprise.strip():
 
             st.error(
-                "⚠️ Veuillez saisir le nom de l'entreprise."
+                "Veuillez saisir le nom de l'entreprise."
             )
 
         elif not responsable.strip():
 
             st.error(
-                "⚠️ Veuillez saisir le nom du responsable."
+                "Veuillez saisir le nom du responsable."
             )
 
         elif not email.strip():
 
             st.error(
-                "⚠️ Veuillez saisir l'adresse email."
+                "Veuillez saisir l'adresse email."
             )
 
         else:
@@ -170,7 +179,7 @@ with button_col1:
             }
 
             st.success(
-                "✅ Informations enregistrées avec succès !"
+                "Informations enregistrées avec succès."
             )
 
             st.rerun()
@@ -179,8 +188,8 @@ with button_col1:
 with button_col2:
 
     if st.button(
-        "🗑️ Effacer tout",
-        use_container_width=True
+        "Effacer tout",
+        width="stretch"
     ):
 
         clear_all()
@@ -205,9 +214,12 @@ if st.session_state.questionnaire_started:
     # PROGRESSION
     # ========================================================
 
-    progress = current / total_questions
+    progress = (
+        (current + 1)
+        / total_questions
+    )
 
-    st.subheader("📋 Questionnaire")
+    st.subheader("Questionnaire")
 
     st.progress(progress)
 
@@ -223,12 +235,26 @@ if st.session_state.questionnaire_started:
     question = questions[current]
 
     st.markdown(
-        f"### 🔹 {question['theme']}"
+        f"### {question['theme']}"
     )
+
+    previous_answer = (
+        st.session_state.answers.get(current)
+    )
+
+    if previous_answer is None:
+        default_index = 0
+    else:
+        default_index = (
+            0
+            if previous_answer == "Oui"
+            else 1
+        )
 
     answer = st.radio(
         question["question"],
         ["Oui", "Non"],
+        index=default_index,
         key=f"question_{current}"
     )
 
@@ -240,17 +266,19 @@ if st.session_state.questionnaire_started:
     col1, col2 = st.columns(2)
 
 
-    # --------------------------------------------------------
-    # BOUTON PRÉCÉDENT
-    # --------------------------------------------------------
+    # ========================================================
+    # PRÉCÉDENT
+    # ========================================================
 
     with col1:
 
         if st.button(
-            "⬅️ Précédent",
+            "Précédent",
             key="prev_btn",
-            use_container_width=True
+            width="stretch"
         ):
+
+            st.session_state.answers[current] = answer
 
             if current > 0:
 
@@ -259,26 +287,20 @@ if st.session_state.questionnaire_started:
                 st.rerun()
 
 
-    # --------------------------------------------------------
-    # BOUTON SUIVANT
-    # --------------------------------------------------------
+    # ========================================================
+    # SUIVANT
+    # ========================================================
 
     with col2:
 
         if st.button(
-            "Suivant ➡️",
+            "Suivant",
             key="next_btn",
-            use_container_width=True
+            width="stretch"
         ):
-
-            # Sauvegarder la réponse
 
             st.session_state.answers[current] = answer
 
-
-            # =================================================
-            # QUESTION SUIVANTE
-            # =================================================
 
             if current < total_questions - 1:
 
@@ -287,81 +309,58 @@ if st.session_state.questionnaire_started:
                 st.rerun()
 
 
-            # =================================================
-            # DERNIÈRE QUESTION
-            # =================================================
-
             else:
 
-                # ---------------------------------------------
-                # Calcul du score
-                # ---------------------------------------------
+                if (
+                    len(st.session_state.answers)
+                    < total_questions
+                ):
 
-                score, percentage, theme_scores, theme_totals = (
-                    calculate_score(
-                        st.session_state.answers
+                    st.error(
+                        "Veuillez répondre à toutes les questions."
                     )
-                )
+
+                else:
+
+                    score, percentage, theme_scores, theme_totals = (
+                        calculate_score(
+                            st.session_state.answers
+                        )
+                    )
+
+                    level = maturity_level(score)
 
 
-                # ---------------------------------------------
-                # Niveau de maturité
-                # ---------------------------------------------
+                    st.session_state.score = score
+                    st.session_state.percentage = percentage
+                    st.session_state.theme_scores = theme_scores
+                    st.session_state.theme_totals = theme_totals
+                    st.session_state.level = level
 
-                level = maturity_level(score)
-
-
-                # ---------------------------------------------
-                # Sauvegarde des résultats
-                # ---------------------------------------------
-
-                st.session_state.score = score
-
-                st.session_state.percentage = percentage
-
-                st.session_state.theme_scores = theme_scores
-
-                st.session_state.theme_totals = theme_totals
-
-                st.session_state.level = level
+                    st.session_state.company = {
+                        "entreprise": entreprise,
+                        "responsable": responsable,
+                        "email": email,
+                        "secteur": secteur,
+                        "effectif": effectif
+                    }
 
 
-                # ---------------------------------------------
-                # Sauvegarde entreprise
-                # ---------------------------------------------
-
-                st.session_state.company = {
-                    "entreprise": entreprise,
-                    "responsable": responsable,
-                    "email": email,
-                    "secteur": secteur,
-                    "effectif": effectif
-                }
-
-
-                # ---------------------------------------------
-                # SAUVEGARDE DANS SQLITE
-                # ---------------------------------------------
-
-                save_audit(
-                    entreprise=entreprise,
-                    responsable=responsable,
-                    email=email,
-                    secteur=secteur,
-                    effectif=effectif,
-                    score=score,
-                    percentage=percentage,
-                    level=level
-                )
+                    save_audit(
+                        entreprise=entreprise,
+                        responsable=responsable,
+                        email=email,
+                        secteur=secteur,
+                        effectif=effectif,
+                        score=score,
+                        percentage=percentage,
+                        level=level
+                    )
 
 
-                # ---------------------------------------------
-                # Aller vers les résultats
-                # ---------------------------------------------
-
-                st.switch_page(
-                    "pages/3_Resultats.py"
-                )
+                    st.switch_page(
+                        "pages/3_Resultats.py"
+                    )
 
 
 # ============================================================
@@ -371,7 +370,7 @@ if st.session_state.questionnaire_started:
 else:
 
     st.info(
-        "👆 Remplissez les informations de l'entreprise "
-        "puis cliquez sur **🚀 Commencer le questionnaire** "
+        "Remplissez les informations de l'entreprise "
+        "puis cliquez sur « Commencer le questionnaire » "
         "pour démarrer l'évaluation."
     )

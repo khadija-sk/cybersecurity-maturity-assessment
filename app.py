@@ -5,4 +5,4 @@ st.set_page_config(
        layout="wide" )
 st.title("🛡️ CyberAudit")
 st.write("Bienvenue sur la plateforme d’évaluation cybersécurité des PME marocaines.") 
-st.write("Utilisez le menu latéral pour accéder aux différentes pages.")
+st.write("Utilisez le menu latéral pour accéder aux différentes pages.")  

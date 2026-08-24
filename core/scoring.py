@@ -1,5 +1,6 @@
 from core.questions import questions
 
+
 def calculate_score(answers):
     total_questions = len(questions)
 
@@ -8,6 +9,7 @@ def calculate_score(answers):
     theme_totals = {}
 
     for i, q in enumerate(questions):
+
         theme = q["theme"]
 
         if theme not in theme_scores:
@@ -20,17 +22,28 @@ def calculate_score(answers):
             score += 1
             theme_scores[theme] += 1
 
-    percentage = round((score / total_questions) * 100)
+    percentage = round(
+        (score / total_questions) * 100
+    )
 
-    return score, percentage, theme_scores, theme_totals
+    return (
+        score,
+        percentage,
+        theme_scores,
+        theme_totals
+    )
 
 
 def maturity_level(score):
+
     if score <= 8:
-        return "🔴 Faible"
+        return "Faible"
+
     elif score <= 16:
-        return "🟡 Intermédiaire"
+        return "Intermédiaire"
+
     elif score <= 21:
-        return "🟢 Bon"
+        return "Bon"
+
     else:
-        return "🏆 Excellent"
+        return "Excellent"
