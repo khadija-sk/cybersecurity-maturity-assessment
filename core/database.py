@@ -1,16 +1,30 @@
 import sqlite3
 from datetime import datetime
 
+
 DATABASE = "cyberaudit.db"
 
+
+# ============================================================
+# CONNEXION
+# ============================================================
 
 def get_connection():
     return sqlite3.connect(DATABASE)
 
 
+# ============================================================
+# INITIALISATION
+# ============================================================
+
 def init_database():
+
     conn = get_connection()
     cursor = conn.cursor()
+
+    # --------------------------------------------------------
+    # Table des audits
+    # --------------------------------------------------------
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS audits (
@@ -27,9 +41,108 @@ def init_database():
         )
     """)
 
+    # --------------------------------------------------------
+    # Table des utilisateurs
+    # --------------------------------------------------------
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+    """)
+
     conn.commit()
     conn.close()
 
+
+# ============================================================
+# UTILISATEURS
+# ============================================================
+
+def create_user(
+    username,
+    email,
+    password_hash
+):
+    """
+    Crée un utilisateur.
+    Retourne False si l'email existe déjà.
+    """
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute(
+            """
+            INSERT INTO users (
+                username,
+                email,
+                password_hash,
+                created_at
+            )
+            VALUES (?, ?, ?, ?)
+            """,
+            (
+                username.strip(),
+                email.strip().lower(),
+                password_hash,
+                datetime.now().strftime(
+                    "%d/%m/%Y %H:%M"
+                )
+            )
+        )
+
+        conn.commit()
+
+        return True
+
+    except sqlite3.IntegrityError:
+
+        return False
+
+    finally:
+
+        conn.close()
+
+
+def get_user_by_email(email):
+    """
+    Récupère un utilisateur grâce à son email.
+    """
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT
+            id,
+            username,
+            email,
+            password_hash,
+            created_at
+        FROM users
+        WHERE email = ?
+        """,
+        (email.strip().lower(),)
+    )
+
+    user = cursor.fetchone()
+
+    conn.close()
+
+    return user
+
+
+# ============================================================
+# AUDITS
+# ============================================================
 
 def save_audit(
     entreprise,
@@ -41,6 +154,7 @@ def save_audit(
     percentage,
     level
 ):
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -66,7 +180,9 @@ def save_audit(
         score,
         percentage,
         level,
-        datetime.now().strftime("%d/%m/%Y %H:%M")
+        datetime.now().strftime(
+            "%d/%m/%Y %H:%M"
+        )
     ))
 
     conn.commit()
@@ -74,6 +190,7 @@ def save_audit(
 
 
 def get_audits():
+
     conn = get_connection()
     cursor = conn.cursor()
 
@@ -100,12 +217,18 @@ def get_audits():
     return audits
 
 
-def delete_audit(audit_id):
+def delete_audit(
+    audit_id
+):
+
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute(
-        "DELETE FROM audits WHERE id = ?",
+        """
+        DELETE FROM audits
+        WHERE id = ?
+        """,
         (audit_id,)
     )
 
@@ -113,5 +236,8 @@ def delete_audit(audit_id):
     conn.close()
 
 
-# Initialiser automatiquement la base
+# ============================================================
+# INITIALISATION AUTOMATIQUE
+# ============================================================
+
 init_database()

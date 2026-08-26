@@ -1,29 +1,16 @@
-# Python
 __pycache__/
 *.py[cod]
-*.pyo
 
-# Virtual environment
+.env
 myenv/
 venv/
 .venv/
 
-# Local database
-cyberaudit.db
 *.db
 *.sqlite
 *.sqlite3
 
-# Generated reports
-reports/*.pdf
-
-# IDE
 .vscode/
 .idea/
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Streamlit
-.streamlit/secrets.toml
+reports/
