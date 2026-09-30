@@ -236,19 +236,9 @@ Assessment results and recommendations can be exported as a structured PDF repor
 
 ## Screenshots
 
-*Add application screenshots here.*
 
-Recommended screenshots:
+<img width="1366" height="696" alt="image" src="https://github.com/user-attachments/assets/3a562e02-7fe6-4d00-884e-ae5e0fb48917" />
 
-1. Login page
-2. Questionnaire
-3. Results dashboard
-4. Domain analysis
-5. Recommendations
-6. Assessment history
-7. PDF report
-
----
 
 ## Project Context
 
