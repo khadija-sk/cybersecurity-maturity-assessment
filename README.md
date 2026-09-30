@@ -238,6 +238,14 @@ Assessment results and recommendations can be exported as a structured PDF repor
 
 
 <img width="1366" height="696" alt="image" src="https://github.com/user-attachments/assets/3a562e02-7fe6-4d00-884e-ae5e0fb48917" />
+<img width="1366" height="682" alt="image" src="https://github.com/user-attachments/assets/0a038c98-7797-493d-98d2-ab655f459d05" />
+<img width="1366" height="668" alt="image" src="https://github.com/user-attachments/assets/5976bb3b-1793-478c-8233-f2b2deed3376" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/7178fc26-df42-456f-94a8-1ac68d5071dc" />
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/ebebb2cc-068d-465e-a144-7a15d0240938" />
+
+
+
+
 
 
 ## Project Context
