@@ -2,25 +2,58 @@
 
 ## Cybersecurity Maturity Assessment Platform
 
-CyberAudit is a web-based platform developed with **Streamlit** to assess and monitor the cybersecurity maturity of Moroccan SMEs.
+CyberAudit is a web-based platform built with **Python and Streamlit** to help Moroccan SMEs assess their cybersecurity maturity through a structured questionnaire.
 
-The platform provides a structured cybersecurity assessment through a questionnaire, automatically calculates maturity scores, identifies areas for improvement, generates personalized recommendations, and allows users to export their results as a PDF report.
+The platform transforms assessment responses into an overall maturity score, domain-level analysis, targeted recommendations, and a downloadable PDF report.
 
-> Developed as part of a **PFA internship at CMRPI**.
+Developed as part of a **PFA internship at CMRPI**.
 
 ---
 
-## Features
+## Overview
 
-* 🔐 User authentication
-* 🏢 Company information management
-* 📋 Structured cybersecurity maturity questionnaire
-* 📊 Automatic maturity scoring
-* 🔎 Analysis by cybersecurity domain
-* 💡 Personalized security recommendations
-* 📄 PDF report generation
-* 📈 Assessment history and progress tracking
-* 📊 Interactive data visualization
+CyberAudit provides SMEs with a structured way to:
+
+* Assess their current cybersecurity maturity
+* Identify weaknesses across different cybersecurity domains
+* Understand their overall and domain-level maturity
+* Receive recommendations based on identified weaknesses
+* Track previous assessments
+* Generate a PDF report of assessment results
+
+The assessment currently covers **25 cybersecurity controls/questions across 4 cybersecurity domains and 4 maturity levels**.
+
+---
+
+## Key Features
+
+### Authentication
+
+* User registration and login
+* Password hashing with bcrypt
+* User-specific assessment data
+
+### Cybersecurity Assessment
+
+* Structured questionnaire with 25 controls/questions
+* Assessment organized by cybersecurity domain
+* Automatic response evaluation
+* Global maturity score
+* Domain-level scoring
+
+### Analysis & Recommendations
+
+* Identification of cybersecurity weaknesses
+* Domain-level analysis
+* Personalized recommendations based on assessment results
+* Clear maturity-level interpretation
+
+### Dashboard & Reporting
+
+* Interactive results visualization
+* Assessment history
+* Progress tracking
+* PDF report generation
 
 ---
 
@@ -37,9 +70,13 @@ Response Analysis
       ↓
 Maturity Scoring
       ↓
+Domain Analysis
+      ↓
 Recommendations
       ↓
-Results & PDF Report
+Results Dashboard
+      ↓
+PDF Report
       ↓
 Assessment History
 ```
@@ -48,21 +85,26 @@ Assessment History
 
 ## Assessment Framework
 
-The platform currently includes:
+The current assessment includes:
 
-* **25 cybersecurity controls/questions**
-* **4 cybersecurity domains**
-* **4 maturity levels**
-* Automatic global and domain-level scoring
-* Recommendations based on identified weaknesses
+| Component                        | Coverage |
+| -------------------------------- | -------: |
+| Cybersecurity controls/questions |       25 |
+| Cybersecurity domains            |        4 |
+| Maturity levels                  |        4 |
+| Global maturity score            |      Yes |
+| Domain-level analysis            |      Yes |
+| Personalized recommendations     |      Yes |
+| Assessment history               |      Yes |
+| PDF reporting                    |      Yes |
 
-The assessment is designed to provide SMEs with a clear view of their current cybersecurity maturity and the areas requiring improvement.
+The framework is designed to provide an **indicative assessment of cybersecurity maturity**, helping SMEs identify areas that may require further attention.
 
 ---
 
 ## Technology Stack
 
-### Frontend / Application
+### Application
 
 * Python
 * Streamlit
@@ -72,7 +114,7 @@ The assessment is designed to provide SMEs with a clear view of their current cy
 * Pandas
 * Plotly
 
-### Security
+### Authentication & Security
 
 * bcrypt
 
@@ -106,9 +148,6 @@ CyberAudit/
 ├── data/
 │   ├── questions.csv
 │   └── recommendations.csv
-│
-├── database/
-│   └── cyberaudit.db
 │
 ├── pages/
 │   ├── 0_Login.py
@@ -159,7 +198,7 @@ py -m pip install -r requirements.txt
 py -m streamlit run app.py
 ```
 
-The application will be available locally at:
+The application will then be available at:
 
 ```text
 http://localhost:8501
@@ -167,27 +206,55 @@ http://localhost:8501
 
 ---
 
-## Main Pages
+## Application
 
 ### Login
 
-Secure authentication system allowing users to access their CyberAudit workspace.
+Users authenticate to access their CyberAudit workspace.
 
 ### Questionnaire
 
-Users answer a structured set of cybersecurity questions covering multiple security domains.
+Users provide company information and complete the cybersecurity assessment covering multiple security domains.
 
 ### Results
 
-The platform calculates the overall cybersecurity maturity score and provides a detailed analysis of the assessment results.
+The platform calculates the overall maturity score and provides a detailed breakdown of the assessment results.
+
+### Recommendations
+
+Recommendations are generated according to identified weaknesses and assessment results.
 
 ### History
 
-Users can review previous assessments and track their cybersecurity maturity over time.
+Users can review previous assessments and track their results over time.
 
 ### PDF Report
 
-Assessment results and recommendations can be exported into a structured PDF report.
+Assessment results and recommendations can be exported as a structured PDF report.
+
+---
+
+## Screenshots
+
+*Add application screenshots here.*
+
+Recommended screenshots:
+
+1. Login page
+2. Questionnaire
+3. Results dashboard
+4. Domain analysis
+5. Recommendations
+6. Assessment history
+7. PDF report
+
+---
+
+## Project Context
+
+CyberAudit was developed during a **PFA internship at CMRPI** as part of a project focused on assessing cybersecurity maturity among Moroccan SMEs.
+
+The project covers the implementation of the assessment workflow, questionnaire, scoring mechanisms, cybersecurity-domain analysis, recommendations, authentication, visualization, assessment history, and PDF reporting.
 
 ---
 
@@ -195,15 +262,13 @@ Assessment results and recommendations can be exported into a structured PDF rep
 
 The objective of CyberAudit is to make cybersecurity maturity assessment more **structured, accessible, and actionable** for SMEs.
 
-Instead of providing only a numerical score, the platform helps identify cybersecurity weaknesses and translates assessment results into practical areas for improvement.
+Rather than providing only a numerical score, the platform combines scoring, domain-level analysis, and recommendations to help organizations understand where further cybersecurity improvements may be needed.
 
 ---
 
-## Project Context
+## Disclaimer
 
-This project was developed during a **PFA internship at CMRPI** as part of a project focused on the assessment of cybersecurity maturity among Moroccan SMEs.
-
-The platform implements the assessment workflow, questionnaire, scoring mechanisms, recommendations, authentication, results visualization, and report generation.
+CyberAudit provides an **indicative cybersecurity maturity assessment** and is not a substitute for a professional cybersecurity audit, penetration test, compliance assessment, or certification process.
 
 ---
 
@@ -214,10 +279,4 @@ The platform implements the assessment workflow, questionnaire, scoring mechanis
 Engineering Student — Digital Transformation & Artificial Intelligence
 ENSA Al Hoceïma
 
----
-
-## Status
-
-🚧 **Project under development**
-
-The platform is continuously being improved with new features, refinements, and assessment capabilities.
+[LinkedIn](https://www.linkedin.com/in/khadija-sayoukh-1a1a94288)
